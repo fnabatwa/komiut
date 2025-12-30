@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart'; // Updated relative import
-
+import 'app_colors.dart'; 
 class AppTextStyles {
   AppTextStyles._();
 
@@ -10,7 +9,6 @@ class AppTextStyles {
   static const TextStyle displayLarge = TextStyle(
     fontSize: 32,
     fontWeight: FontWeight.bold,
-    // color removed to allow Theme inheritance
     letterSpacing: -0.5,
   );
 
