@@ -55,7 +55,6 @@ class PaymentNotifier extends StateNotifier<AsyncValue<List<PaymentModel>>> {
       );
 
       if (payment != null && payment.status == PaymentStatus.success) {
-        // CRITICAL: Update the state list locally so the UI refreshes instantly
         state.whenData((currentHistory) {
           state = AsyncValue.data([payment, ...currentHistory]);
         });

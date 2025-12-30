@@ -137,7 +137,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               child: const Icon(Icons.person, size: 40, color: AppColors.primary),
             ),
             const SizedBox(height: AppSpacing.md),
-            // Style adapts automatically now
             Text(user?.fullName ?? 'User', style: AppTextStyles.headingMedium),
             Text(
                 user?.email ?? 'email@example.com',
