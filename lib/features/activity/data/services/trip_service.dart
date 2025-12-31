@@ -1,5 +1,5 @@
 import 'dart:async';
-import '../../../activity/domain/models/trip_model.dart';
+import '../../domain/models/trip_model.dart';
 
 class TripService {
   final List<TripModel> _mockTrips = [

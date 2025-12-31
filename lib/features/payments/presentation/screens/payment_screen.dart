@@ -9,7 +9,7 @@ import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/payment_provider.dart';
-import '../widgets/payment_card.dart';
+import '../../../../core/widgets/payment_card.dart';
 import '../../domain/models/payment_model.dart';
 
 class PaymentScreen extends ConsumerStatefulWidget {

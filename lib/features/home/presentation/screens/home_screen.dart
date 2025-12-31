@@ -8,7 +8,7 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/trip_card.dart';
 
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../auth/presentation/providers/trip_provider.dart';
+import '../../../activity/presentation/providers/trip_provider.dart';
 import '../../../activity/domain/models/trip_model.dart';
 import '../../../activity/presentation/screens/activity_screen.dart';
 import '../../../payments/presentation/screens/payment_screen.dart';

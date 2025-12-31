@@ -123,10 +123,14 @@ lib/
 │   └── widgets/
 │       ├── custom_button.dart
 │       ├── custom_text_field.dart
-│       ├── trip_card.dart
-│       └── loading_indicator.dart
+│       ├── empty_state.dart
+│       ├── loading_indicator.dart
+│       ├── payment_card.dart
+│       └── trip_card.dart
+│
 └── features/
     ├── activity/
+    │   ├── data/services/
     │   ├── domain/models/
     │   └── presentation/ (providers, screens)
     ├── auth/

@@ -2,57 +2,74 @@ import '../../domain/models/payment_model.dart';
 
 class PaymentService {
   // Mock data to simulate a database
-  // this would be stored in a remote database or local SQL table
   final List<PaymentModel> _mockPayments = [
     PaymentModel(
-      id: 'p1',
-      amount: 50.0,
-      type: PaymentType.trip,
-      paymentMethod: 'Wallet',
-      status: PaymentStatus.success,
-      date: DateTime.now().subtract(const Duration(hours: 2)),
-      description: 'Trip to Westlands',
-    ),
-    PaymentModel(
-      id: 'p2',
+      id: 'pay_001',
       amount: 1000.0,
       type: PaymentType.topUp,
       paymentMethod: 'M-Pesa',
       status: PaymentStatus.success,
-      date: DateTime.now().subtract(const Duration(days: 1)),
-      description: 'Wallet Top Up',
+      date: DateTime.now().subtract(const Duration(hours: 2)),
+      description: 'Wallet Top-up',
+      referenceNumber: 'QWJ45TR982',
+    ),
+    PaymentModel(
+      id: 'pay_002',
+      amount: 2500.0,
+      type: PaymentType.topUp,
+      paymentMethod: 'Card',
+      status: PaymentStatus.success,
+      date: DateTime.now().subtract(const Duration(days: 1, hours: 5)),
+      description: 'Wallet Top-up',
+      referenceNumber: 'CRD-8821-X',
+    ),
+    PaymentModel(
+      id: 'pay_003',
+      amount: 500.0,
+      type: PaymentType.topUp,
+      paymentMethod: 'M-Pesa',
+      status: PaymentStatus.failed,
+      date: DateTime.now().subtract(const Duration(days: 2, hours: 1)),
+      description: 'Wallet Top-up',
+      referenceNumber: 'ERR-MPESA-99',
+    ),
+    PaymentModel(
+      id: 'pay_004',
+      amount: 1200.0,
+      type: PaymentType.trip,
+      paymentMethod: 'Wallet',
+      status: PaymentStatus.success,
+      date: DateTime.now().subtract(const Duration(days: 3)),
+      description: 'Trip: Nairobi - Busia',
     ),
   ];
 
   /// Fetches all transactions for a specific user
   Future<List<PaymentModel>> getPaymentHistory(String userId) async {
-    // Simulate network delay
     await Future.delayed(const Duration(seconds: 1));
-
-    return _mockPayments;
+    // Return a copy to ensure UI updates properly
+    return List<PaymentModel>.from(_mockPayments);
   }
 
-  /// Processes a new top-up
-  Future<PaymentModel> processPayment({
+  Future<PaymentModel> topUpWallet({
     required double amount,
-    required String method,
-    required String userId,
+    required String paymentMethod,
   }) async {
-    // Simulate network delay (M-Pesa push/Bank validation)
+    // Simulate network delay
     await Future.delayed(const Duration(seconds: 2));
 
     final newPayment = PaymentModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       amount: amount,
       type: PaymentType.topUp,
-      paymentMethod: method,
+      paymentMethod: paymentMethod,
       status: PaymentStatus.success,
       date: DateTime.now(),
-      description: 'Wallet Top Up via $method',
-
+      description: 'Wallet Top Up via $paymentMethod',
+      referenceNumber: 'REF-${DateTime.now().millisecondsSinceEpoch}',
     );
 
-    // history shows newest first
+    // Insert at the beginning so it shows at the top of the list
     _mockPayments.insert(0, newPayment);
 
     return newPayment;

@@ -2,13 +2,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../../auth/presentation/providers/trip_provider.dart';
+import '../providers/trip_provider.dart';
 import '../../domain/models/trip_model.dart';
 import '../../../../core/widgets/trip_card.dart';
 

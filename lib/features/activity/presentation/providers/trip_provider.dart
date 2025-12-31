@@ -1,6 +1,7 @@
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/trip_model.dart';
-import '../../../auth/data/services/trip_service.dart';
+import '../../data/services/trip_service.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 /// Provides the instance of TripService
@@ -11,19 +12,22 @@ final tripStateProvider = StateNotifierProvider<TripStateNotifier, AsyncValue<Li
   return TripStateNotifier(ref.read(tripServiceProvider), ref);
 });
 
-/// FutureProvider used for simple fetching logic
-final tripListProvider = FutureProvider.family<List<TripModel>, String>((ref, userId) async {
-  return await ref.read(tripServiceProvider).getUserTrips(userId);
+/// Dashboard-specific provider for the Home Screen
+final recentTripsProvider = FutureProvider.family<List<TripModel>, String>((ref, userId) async {
+  final tripsAsync = ref.watch(tripStateProvider);
+  return tripsAsync.maybeWhen(
+    data: (trips) => trips.take(5).toList(),
+    orElse: () => ref.read(tripServiceProvider).getRecentTrips(userId, limit: 5),
+  );
 });
 
-/// Mock Statistics Provider that recalculates whenever trips update
+/// Mock Statistics Provider
 final tripStatisticsProvider = Provider.family<AsyncValue<Map<String, dynamic>>, String>((ref, userId) {
   final tripsAsync = ref.watch(tripStateProvider);
   return tripsAsync.whenData((trips) {
-    // We only count spent money for non-cancelled trips
     double totalSpent = trips
         .where((t) => t.status != TripStatus.cancelled)
-        .fold(0, (sum, item) => sum + item.fare);
+        .fold(0.0, (sum, item) => sum + item.fare);
 
     return {
       'total_trips': trips.length,
@@ -52,10 +56,8 @@ class TripStateNotifier extends StateNotifier<AsyncValue<List<TripModel>>> {
     }
   }
 
-  /// Deducts balance and adds a new trip to the history
   Future<void> bookTrip(TripModel trip) async {
     final user = _ref.read(currentUserProvider);
-
     if (user == null) throw Exception('User not authenticated');
 
     if (user.walletBalance < trip.fare) {
@@ -63,7 +65,7 @@ class TripStateNotifier extends StateNotifier<AsyncValue<List<TripModel>>> {
     }
 
     try {
-      // FIXED: Added departureTime and passengers arguments here
+      // 1. Create trip in service
       final savedTrip = await _tripService.createTrip(
         routeName: trip.routeName,
         startLocation: trip.startLocation,
@@ -73,20 +75,46 @@ class TripStateNotifier extends StateNotifier<AsyncValue<List<TripModel>>> {
         passengers: trip.passengers,
       );
 
-      // Deduct from Wallet Balance
+      // 2. Deduct from Wallet Balance
       final newBalance = user.walletBalance - trip.fare;
       _ref.read(authStateProvider.notifier).updateWalletBalance(newBalance);
 
-      // Update the list state immediately for a smooth UX
+      // 3. Update the list state immediately
       state.whenData((trips) {
         state = AsyncValue.data([savedTrip, ...trips]);
       });
+
+      // 4. Start the 20-second simulation
+      _simulateTripProgress(savedTrip.id);
+
     } catch (e) {
       rethrow;
     }
   }
 
-  /// Optional: Helper to update status locally (useful for simulation)
+  void _simulateTripProgress(String tripId) async {
+    // 20 sec wait simulation
+    await Future.delayed(const Duration(seconds: 20));
+
+    state.whenData((trips) {
+      state = AsyncValue.data(trips.map((t) {
+        if (t.id == tripId && t.status == TripStatus.pending) {
+          // 20% failure rate simulation
+          final bool willFail = Random().nextInt(100) < 20;
+          return t.copyWith(
+            status: willFail ? TripStatus.failed : TripStatus.completed,
+            failureReason: willFail ? 'Broken tire near Naivasha' : null,
+          );
+        }
+        return t;
+      }).toList());
+    });
+
+    // Refresh dashboard
+    final user = _ref.read(currentUserProvider);
+    if (user != null) _ref.invalidate(recentTripsProvider(user.id));
+  }
+
   void cancelTrip(String tripId) {
     state.whenData((trips) {
       state = AsyncValue.data(trips.map((t) {
